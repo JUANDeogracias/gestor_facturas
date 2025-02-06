@@ -1,3 +1,4 @@
+from hashid_field.rest import HashidSerializerCharField
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -5,11 +6,11 @@ from ..Models.FacturaModel import Factura
 
 
 class FacturaSerializer(serializers.ModelSerializer):
-
+    usuarios = HashidSerializerCharField(source='hashid', read_only=True)
     imagen = serializers.ImageField(use_url=True,required=False,allow_null=True)
     class Meta:
         model = Factura
-        fields = ['imagen','fecha','total','usuarios']
+        fields = ['id','imagen','fecha','total','usuarios']
 
     def validate_total(self, value):
         if not value:

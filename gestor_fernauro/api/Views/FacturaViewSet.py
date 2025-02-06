@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 from django.core.cache import cache
+from django.db.models import Avg, Sum
 from django.http import HttpResponse
 from PIL import Image
 from rest_framework import request, status, viewsets
@@ -13,11 +14,6 @@ from ..Decorators.Actions import FacturaDecorator
 from ..Models.FacturaModel import Factura
 from ..Permissions.permissions import IsAdminUser, IsNormalUser
 from ..Serializers.FacturaSerializer import FacturaSerializer
-
-# Librerías a descomentar en caso de querer utilizar los métodos para utilizar la ia
-# from deepface import DeepFace
-# import cv2
-
 
 
 class FacturaViewSet(viewsets.ModelViewSet,
@@ -114,11 +110,21 @@ class FacturaViewSet(viewsets.ModelViewSet,
         except Exception as e:
             return Response({'error': str(e)}, status=400)
 
+    @action(detail=False, methods=['get'])
+    def suma_total(self,request):
+        # Mediante la siguiente línea de código, calculamos la suma total de todas las facturas
+        facturas_totales = (Factura.objects
+                            .aggregate(total=Sum('total')))
 
+        return Response(facturas_totales, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=['get'])
+    def media_total(self,request):
+        # A continuación, calculamos la media de los totales de todas las facturas ya que usamos el método agregate
+        facturas_totales = (Factura.objects
+                            .aggregate(media=Avg('total')))
 
-
-
+        return Response(facturas_totales, status=status.HTTP_200_OK)
 
 
 

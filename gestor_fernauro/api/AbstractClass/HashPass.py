@@ -1,15 +1,24 @@
+from abc import ABC, abstractmethod
+
 from hashids import Hashids
 from rest_framework import status
 from rest_framework.response import Response
 
 
-class PasswordHash():
+class PasswordHash(ABC):
     password = None
 
-    class Meta:
-        abstract: True
+    def descifrar_password(self, contrasena):
+        hashids = Hashids(salt='contrasena_prueba', min_length=7)
+        try:
+            # Desciframos la contraseña
 
-    def has_password(self, contrasena):
+            pk = hashids.decode(contrasena)
+            print(pk)
+            return pk
+        except ValueError:
+            return Response("No se ha podido descifrar la contraseña", status=status.HTTP_400_BAD_REQUEST)
+    def has_password(cls, contrasena):
         hashids = Hashids(salt='contrasena_prueba', min_length=7)
         try:
             # Hasheamos el pk que introduce el usuario

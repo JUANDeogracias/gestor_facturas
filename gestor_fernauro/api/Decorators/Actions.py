@@ -1,4 +1,3 @@
-# mixins.py
 import os
 
 from django.conf import settings
@@ -8,6 +7,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from ..AbstractClass.HashPass import PasswordHash
 from ..models import User
 from ..Models.FacturaModel import Factura
 from ..Serializers.FacturaSerializer import FacturaSerializer
@@ -15,7 +15,6 @@ from ..Serializers.UserSerializer import UserSerializer
 from ..tasks import registrar_log
 
 
-from ..AbstractClass.HashPass import PasswordHash
 # Clase donde dejamos registrados los decoradores que vamos a utilizar
 class UserDecorator(PasswordHash):
 
@@ -133,3 +132,35 @@ class FacturaDecorator():
             return Response("Imagen eliminada", status=status.HTTP_200_OK)
         else:
             return Response("La imagen no existe", status=status.HTTP_404_NOT_FOUND)
+
+
+    @action(detail=False, methods=['get'])
+    def pageable(self, request):
+        # Obtener la cantidad de facturas a mostrar (por defecto es 3)
+        cantidad_facturas = int(request.query_params.get('cantidad', 3))
+
+        # Obtenemos las facturas, ordenadas por 'id' en orden descendente
+        facturas = Factura.objects.all().order_by('-id')[:cantidad_facturas]
+
+        serializer = FacturaSerializer(facturas, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+    @action(detail=False, methods=['get'])
+    def ultimos(self, request):
+        facturas = Factura.objects.all().order_by('fecha')
+        serializer = FacturaSerializer(facturas, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'])
+    def nuevos(self, request):
+        facturas = Factura.objects.all().order_by('-fecha')
+        serializer = FacturaSerializer(facturas, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+

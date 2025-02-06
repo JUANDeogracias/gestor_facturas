@@ -26,7 +26,7 @@ class Factura(models.Model):
 
     def validate_image_format(value):
         """
-        Valida que el archivo de imagen tenga una extensión permitida (.jpeg o .png).
+        Validamos que el archivo de imagen tenga una extensión permitida (.jpeg o .png).
         """
         valid_extensions = ['.png']
         extension = value.name.split('.')[-1].lower()
